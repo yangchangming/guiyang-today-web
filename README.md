@@ -7,17 +7,6 @@
 * [这里](http://naotu.baidu.com/file/cd31354ac9abc047569c73c560a5a913?token=b9750ae13f39ef9a)是 Sym 功能点脑图，看看是否满足你的需求
 * 如果你在搭建或者二次开发时碰到问题，欢迎加 Q 群 17370164 进行讨论
 
-### 作者
-
-Sym 的主要作者是 [Daniel](https://github.com/88250) 与 [Vanessa](https://github.com/Vanessa219)，所有贡献者可以在[这里](https://github.com/b3log/symphony/graphs/contributors)看到。
-
-### 初衷
-
-Sym 的诞生是有如下几点原因：
-
-* 已有的用 Java 写的论坛很少也很丑，并且大多数已经不再维护
-* 我们想实现一种[新的网络社区体验](https://hacpai.com/b3log)，独立博客+论坛互动
-
 ## 基本理念
 
 ### 实时交互
@@ -113,27 +102,3 @@ Sym 使用了很多 HTML5 提供的技术特性，比如
   ![qiniu](https://cloud.githubusercontent.com/assets/873584/10298674/3c7230aa-6c14-11e5-9014-2ae4e457a364.png)
 * 配置 SendCloud 邮件模版：
   ![sendcloud](https://cloud.githubusercontent.com/assets/873584/10298675/3cb11b08-6c14-11e5-9fd4-025122336469.png)
-
-如果遇到问题，可以参考一下这篇[帖子](https://hacpai.com/article/1468824093225)。
-
-## 商用授权
-
-请看[这里](https://github.com/b3log/symphony/wiki/%E5%95%86%E7%94%A8%E6%8E%88%E6%9D%83)。
-
-## 思绪
-
-在实现 [B3log 构思](https://hacpai.com/b3log)的这几年：
-
-* 我们见证了 xAE（GAE/BAE/SAE/etc）的兴起与没落。2009 年选择了 GAE 作为服务器，并开始实现 [Latke](https://github.com/b3log/latke) 框架来解决跨云平台，直到[告别 GAE](https://hacpai.com/article/1443685401909)，不得不感叹技术更迭之快
-* 感受到了自造轮子的优缺点，并且可以肯定一点：对于一个想要长久的产品来说，自制技术框架优势远大于劣势
-* 一个好玩的产品或说是细节特性然并卵，需要做的是一个能够持续提供用户价值的产品/特性
-* 虽然直到目前 B3log 系产品用户不多，但我们已经初步证明了：Java 用来实现博客、论坛没有什么不好的
-* 使用开源软件，了解开源思想，融入开源
-
-## Terms
-
-* This software is open sourced under the Apache License 2.0 
-* You can not get rid of the "Powered by [B3log 开源](http://b3log.org) • [Sym](https://github.com/b3log/symphony)" from any page, even which you made
-* If you want to use this software for commercial purpose, please mail to support@liuyun.io for a commercial license request
-* Copyright &copy; b3log.org, all rights reserved
-

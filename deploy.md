@@ -22,4 +22,4 @@
 
    websocket配置，只要配置nginx就可以了
    
-   
+jjjjj   

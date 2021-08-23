@@ -15,20 +15,24 @@
  */
 package org.b3log.symphony.api;
 
-import java.util.List;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
 import org.b3log.latke.util.Strings;
 import org.b3log.symphony.model.Article;
+import org.b3log.symphony.processor.advice.LoginCheck;
 import org.b3log.symphony.service.ArticleQueryService;
 import org.b3log.symphony.service.TagQueryService;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Article processor.
@@ -83,20 +87,19 @@ public class ArticleProcessor {
         if (Strings.isEmptyOrNull(pageNumStr) || !Strings.isNumeric(pageNumStr)) {
             pageNumStr = "1";
         }
-
         String pageSizeStr = request.getParameter("size");
         if (Strings.isEmptyOrNull(pageSizeStr) || !Strings.isNumeric(pageSizeStr)) {
             pageSizeStr = "10";
         }
-
         final String tagsStr = request.getParameter("tags");
+        if (tagsStr==null || !"".equals(tagsStr)){
+            ret.put(Article.ARTICLE, new ArrayList());
+            return;
+        }
         final String[] tagTitles = tagsStr.split(",");
-
         final int pageNum = Integer.valueOf(pageNumStr);
         final int pageSize = Integer.valueOf(pageSizeStr);
-
         final List<JSONObject> interests = articleQueryService.getInterests(pageNum, pageSize, tagTitles);
-
         ret.put(Article.ARTICLES, interests);
     }
 
@@ -109,6 +112,7 @@ public class ArticleProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/api/v1/stories/", method = HTTPRequestMethod.GET)
+    @Before(adviceClass = LoginCheck.class)
     public void getArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         int currentPage = 1;

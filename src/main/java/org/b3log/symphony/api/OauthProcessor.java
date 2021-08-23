@@ -15,27 +15,30 @@
  */
 package org.b3log.symphony.api;
 
-import java.io.IOException;
-import java.util.Date;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.b3log.latke.Keys;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
 import org.b3log.latke.util.MD5;
 import org.b3log.latke.util.Requests;
 import org.b3log.symphony.model.UserExt;
+import org.b3log.symphony.processor.advice.TokenCheck;
 import org.b3log.symphony.service.UserMgmtService;
 import org.b3log.symphony.service.UserQueryService;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * Oauth processor.
@@ -75,6 +78,7 @@ public class OauthProcessor {
      * @throws JSONException JSONException
      */
     @RequestProcessing(value = "/oauth/token", method = HTTPRequestMethod.POST)
+    @Before(adviceClass = TokenCheck.class)
     public void mobileLogin(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, JSONException {
         final String error = "invalid grant";

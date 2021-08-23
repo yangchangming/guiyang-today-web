@@ -15,13 +15,6 @@
  */
 package org.b3log.symphony.processor;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -41,29 +34,24 @@ import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.freemarker.AbstractFreeMarkerRenderer;
 import org.b3log.latke.util.Requests;
 import org.b3log.latke.util.Strings;
-import org.b3log.symphony.model.Common;
-import org.b3log.symphony.model.Invitecode;
-import org.b3log.symphony.model.Option;
-import org.b3log.symphony.model.Pointtransfer;
-import org.b3log.symphony.model.UserExt;
-import org.b3log.symphony.model.Verifycode;
+import org.b3log.symphony.model.*;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.processor.advice.validate.UserForgetPwdValidation;
 import org.b3log.symphony.processor.advice.validate.UserRegister2Validation;
 import org.b3log.symphony.processor.advice.validate.UserRegisterValidation;
-import org.b3log.symphony.service.InvitecodeMgmtService;
-import org.b3log.symphony.service.InvitecodeQueryService;
-import org.b3log.symphony.service.OptionQueryService;
-import org.b3log.symphony.service.PointtransferMgmtService;
-import org.b3log.symphony.service.TimelineMgmtService;
-import org.b3log.symphony.service.UserMgmtService;
-import org.b3log.symphony.service.UserQueryService;
-import org.b3log.symphony.service.VerifycodeMgmtService;
-import org.b3log.symphony.service.VerifycodeQueryService;
+import org.b3log.symphony.service.*;
 import org.b3log.symphony.util.Filler;
 import org.b3log.symphony.util.Sessions;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * Login/Register processor.
@@ -502,6 +490,19 @@ public class LoginProcessor {
             context.renderMsg(msg);
         }
     }
+
+    @RequestProcessing(value = "/registerByWX", method = HTTPRequestMethod.GET)
+    public void registerByWX(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response){
+
+        //todo register by wx
+
+        
+
+
+
+
+    }
+
 
     /**
      * Logins user.

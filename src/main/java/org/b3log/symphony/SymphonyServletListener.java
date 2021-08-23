@@ -17,15 +17,6 @@ package org.b3log.symphony;
 
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import java.util.List;
-import java.util.Random;
-import java.util.ResourceBundle;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -47,12 +38,7 @@ import org.b3log.latke.util.Stopwatchs;
 import org.b3log.latke.util.Strings;
 import org.b3log.symphony.cache.DomainCache;
 import org.b3log.symphony.cache.TagCache;
-import org.b3log.symphony.event.ArticleBaiduSender;
-import org.b3log.symphony.event.ArticleNotifier;
-import org.b3log.symphony.event.ArticleQQSender;
-import org.b3log.symphony.event.ArticleSearchAdder;
-import org.b3log.symphony.event.ArticleSearchUpdater;
-import org.b3log.symphony.event.CommentNotifier;
+import org.b3log.symphony.event.*;
 import org.b3log.symphony.event.solo.ArticleSender;
 import org.b3log.symphony.event.solo.ArticleUpdater;
 import org.b3log.symphony.event.solo.CommentSender;
@@ -68,6 +54,16 @@ import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.util.Crypts;
 import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import java.util.List;
+import java.util.Random;
+import java.util.ResourceBundle;
 
 /**
  * Symphony servlet listener.

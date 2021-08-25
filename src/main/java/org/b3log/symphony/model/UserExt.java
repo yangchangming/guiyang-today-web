@@ -214,7 +214,7 @@ public final class UserExt {
     public static final String USER_TAGS = "userTags";
 
     /**
-     * Key of user QQ.
+     * Key of user QQ. Replace on sex of wechat by changming
      */
     public static final String USER_QQ = "userQQ";
 
@@ -239,7 +239,7 @@ public final class UserExt {
     public static final String USER_AVATAR_URL = "userAvatarURL";
 
     /**
-     * Key of user B3log key.
+     * Key of user B3log key.  replace on unionID of wechat by changming
      */
     public static final String USER_B3_KEY = "userB3Key";
 

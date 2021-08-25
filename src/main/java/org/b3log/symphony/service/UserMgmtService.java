@@ -461,7 +461,7 @@ public class UserMgmtService {
             }
 
             user = new JSONObject();
-            user.put(User.USER_NAME, userName);
+            user.put(User.USER_NAME, userName); //the same as nickname
             user.put(User.USER_EMAIL, userEmail);
             user.put(UserExt.USER_APP_ROLE, requestJSONObject.optInt(UserExt.USER_APP_ROLE));
             user.put(User.USER_PASSWORD, requestJSONObject.optString(User.USER_PASSWORD));
@@ -471,14 +471,14 @@ public class UserMgmtService {
             user.put(UserExt.USER_COMMENT_COUNT, 0);
             user.put(UserExt.USER_TAG_COUNT, 0);
             user.put(UserExt.USER_STATUS, 0);
-            user.put(UserExt.USER_B3_KEY, "");
+            user.put(UserExt.USER_B3_KEY, requestJSONObject.optString(UserExt.USER_B3_KEY));
             user.put(UserExt.USER_B3_CLIENT_ADD_ARTICLE_URL, "");
             user.put(UserExt.USER_B3_CLIENT_UPDATE_ARTICLE_URL, "");
             user.put(UserExt.USER_B3_CLIENT_ADD_COMMENT_URL, "");
             user.put(UserExt.USER_INTRO, "");
-            user.put(UserExt.USER_NICKNAME, "");
+            user.put(UserExt.USER_NICKNAME, requestJSONObject.optString(UserExt.USER_NICKNAME));
             user.put(UserExt.USER_AVATAR_TYPE, UserExt.USER_AVATAR_TYPE_C_UPLOAD);
-            user.put(UserExt.USER_QQ, "");
+            user.put(UserExt.USER_QQ, requestJSONObject.optString(UserExt.USER_QQ));
             user.put(UserExt.USER_ONLINE_FLAG, false);
             user.put(UserExt.USER_LATEST_ARTICLE_TIME, 0L);
             user.put(UserExt.USER_LATEST_CMT_TIME, 0L);
@@ -497,9 +497,9 @@ public class UserMgmtService {
             user.put(UserExt.USER_JOIN_USED_POINT_RANK, UserExt.USER_JOIN_USED_POINT_RANK_C_JOIN);
             user.put(UserExt.USER_TAGS, "");
             user.put(UserExt.USER_SKIN, Symphonys.get("skinDirName")); // TODO: set default skin by app role
-            user.put(UserExt.USER_COUNTRY, "");
-            user.put(UserExt.USER_PROVINCE, "");
-            user.put(UserExt.USER_CITY, "");
+            user.put(UserExt.USER_COUNTRY, requestJSONObject.optString(UserExt.USER_COUNTRY));
+            user.put(UserExt.USER_PROVINCE, requestJSONObject.optString(UserExt.USER_PROVINCE));
+            user.put(UserExt.USER_CITY, requestJSONObject.optString(UserExt.USER_CITY));
             user.put(UserExt.USER_UPDATE_TIME, 0L);
             user.put(UserExt.USER_GEO_STATUS, UserExt.USER_GEO_STATUS_C_PUBLIC);
             user.put(UserExt.SYNC_TO_CLIENT, false);

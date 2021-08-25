@@ -23,6 +23,8 @@ import org.b3log.latke.Latkes;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.User;
+import org.b3log.latke.repository.RepositoryException;
+import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
@@ -40,12 +42,15 @@ import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.processor.advice.validate.UserForgetPwdValidation;
 import org.b3log.symphony.processor.advice.validate.UserRegister2Validation;
 import org.b3log.symphony.processor.advice.validate.UserRegisterValidation;
+import org.b3log.symphony.repository.UserRepository;
 import org.b3log.symphony.service.*;
 import org.b3log.symphony.util.Filler;
 import org.b3log.symphony.util.Sessions;
+import org.b3log.symphony.util.WeChats;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.print.attribute.standard.JobOriginatingUserName;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -143,6 +148,9 @@ public class LoginProcessor {
      */
     @Inject
     private InvitecodeMgmtService invitecodeMgmtService;
+
+    @Inject
+    private UserRepository userRepository;
 
     /**
      * Shows forget password page.
@@ -491,18 +499,58 @@ public class LoginProcessor {
         }
     }
 
-    @RequestProcessing(value = "/registerByWX", method = HTTPRequestMethod.GET)
-    public void registerByWX(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response){
+    /**
+     * 微信PC登录
+     *
+     * @param context
+     * @param request
+     * @param response
+     * @throws ServiceException
+     */
+    @RequestProcessing(value = "/callback4WX", method = HTTPRequestMethod.GET)
+    @Before(adviceClass = StopwatchStartAdvice.class)
+    public void loginByWX(final HTTPRequestContext context, final HttpServletRequest request,
+                          final HttpServletResponse response) throws ServiceException{
+        final Transaction transaction = userRepository.beginTransaction();
 
-        //todo register by wx
+        String code = request.getParameter("code");
+        WeChats.AccessTokenModel accessTokenModel = WeChats.getAccessToken(code);
+        WeChats.WeChatUserInfoModel weChatUserInfoModel = WeChats.getUserInfo(accessTokenModel.getOpenId(), accessTokenModel.getAccessToken());
 
-        
+        try {
+            JSONObject user = userRepository.getByUnionId(weChatUserInfoModel.getUnionId());
+            if (user==null){
+                user = new JSONObject();
+                user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+                user.put(UserExt.USER_B3_KEY, weChatUserInfoModel.getUnionId());
+                user.put(UserExt.USER_QQ, weChatUserInfoModel.getSex());
+                user.put(User.USER_PASSWORD, "");
+                user.put(UserExt.USER_NICKNAME, weChatUserInfoModel.getNickName());
+                user.put(User.USER_NAME, weChatUserInfoModel.getNickName());
+                user.put(UserExt.USER_PROVINCE, weChatUserInfoModel.getProvince());
+                user.put(UserExt.USER_CITY, weChatUserInfoModel.getCity());
+                user.put(UserExt.USER_COUNTRY, weChatUserInfoModel.getCountry());
+                user.put(UserExt.USER_AVATAR_URL, weChatUserInfoModel.getHeadImgUrl());
+                userMgmtService.addUser(user);
+            }
+            transaction.commit();
 
-
-
-
+            //login
+            Sessions.login(request, response, user);
+            final String ip = Requests.getRemoteAddr(request);
+            userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
+            context.renderMsg("").renderTrueResult();
+            return;
+        }catch (final RepositoryException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.ERROR, "Login by wechat failed", e);
+            throw new ServiceException(e);
+        }catch (final ServiceException e){
+            context.renderMsg(langPropsService.get("loginFailLabel"));
+        }
     }
-
 
     /**
      * Logins user.

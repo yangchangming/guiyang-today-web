@@ -29,6 +29,7 @@ import org.b3log.latke.repository.SortDirection;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.latke.util.CollectionUtils;
 import org.b3log.symphony.cache.UserCache;
+import org.b3log.symphony.model.UserExt;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -128,9 +129,27 @@ public class UserRepository extends AbstractRepository {
         if (0 == array.length()) {
             return null;
         }
-
         return array.optJSONObject(0);
     }
+
+    /**
+     * Get a user by unionId of wechat
+     *
+     * @param unionId
+     * @return
+     * @throws RepositoryException
+     */
+    public JSONObject getByUnionId(final String unionId) throws RepositoryException {
+        final Query query = new Query().setPageCount(1);
+        query.setFilter(new PropertyFilter(UserExt.USER_B3_KEY, FilterOperator.EQUAL, unionId.toLowerCase().trim()));
+        final JSONObject result = get(query);
+        final JSONArray array = result.optJSONArray(Keys.RESULTS);
+        if (0 == array.length()) {
+            return null;
+        }
+        return array.optJSONObject(0);
+    }
+
 
     /**
      * Gets the administrators.

@@ -16,7 +16,9 @@
                         <tbody>
                             <tr>
                                 <td colspan="2" align="center">
-                                    <img src="/images/changmingtalk.png" style="height: 200px; width: 200px;" />
+                                    <div id="qr_code_id">
+<#--                                        <img src="/images/changmingtalk.png" style="height: 200px; width: 200px;" />-->
+                                    </div>
                                 </td>
                             </tr>
 
@@ -70,12 +72,25 @@
         </div>
         <#include "footer.ftl">
         <script type="text/javascript" src="${staticServePath}/js/register${miniPostfix}.js?${staticResourceVersion}"></script>
+        <script type="text/javascript" src="http://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
         <script>
-                                        Register.init();
-                                        Label.userNameErrorLabel = "${userNameErrorLabel}";
-                                        Label.invalidEmailLabel = "${invalidEmailLabel}";
-                                        Label.confirmPwdErrorLabel = "${confirmPwdErrorLabel}";
-                                        Label.captchaErrorLabel = "${captchaErrorLabel}";
+            Register.init();
+            Label.userNameErrorLabel = "${userNameErrorLabel}";
+            Label.invalidEmailLabel = "${invalidEmailLabel}";
+            Label.confirmPwdErrorLabel = "${confirmPwdErrorLabel}";
+            Label.captchaErrorLabel = "${captchaErrorLabel}";
+
+            var obj = new WxLogin({
+                self_redirect:false,
+                id:"qr_code_id",
+                appid: "xxxxx",
+                scope: "snsapi_login",
+                redirect_uri: "http://localhost:8084",
+                state: "",
+                style: "",
+                href: ""
+            });
+
         </script>
     </body>
 </html>

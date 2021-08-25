@@ -20,6 +20,7 @@ import org.b3log.latke.model.User;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.After;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
@@ -28,8 +29,12 @@ import org.b3log.latke.util.MD5;
 import org.b3log.latke.util.Requests;
 import org.b3log.symphony.model.UserExt;
 import org.b3log.symphony.processor.advice.TokenCheck;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.UserMgmtService;
 import org.b3log.symphony.service.UserQueryService;
+import org.b3log.symphony.util.AuthUtil;
+import org.b3log.symphony.util.Sessions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * Oauth processor.
@@ -53,7 +59,7 @@ import java.util.Date;
  * @since 1.3.0
  */
 @RequestProcessor
-public class OauthProcessor {
+public class LoginProcessor {
 
     /**
      * User query service.
@@ -68,7 +74,7 @@ public class OauthProcessor {
     private UserMgmtService userMgmtService;
 
     /**
-     * Mobile logins user.
+     * Login by wechat
      *
      * @param context the specified context
      * @param request the specified request
@@ -77,8 +83,9 @@ public class OauthProcessor {
      * @throws IOException io exception
      * @throws JSONException JSONException
      */
-    @RequestProcessing(value = "/oauth/token", method = HTTPRequestMethod.POST)
-    @Before(adviceClass = TokenCheck.class)
+    @RequestProcessing(value = "/api/v1/login/wechat", method = HTTPRequestMethod.POST)
+    @Before(adviceClass = StopwatchStartAdvice.class)
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void mobileLogin(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, JSONException {
         final String error = "invalid grant";
@@ -111,6 +118,25 @@ public class OauthProcessor {
                 ret.put("error_description", errorDescription);
                 return;
             }
+
+            //Get unionID and checkin ...
+
+            String token = null;
+
+            try {
+                token = AuthUtil.buildToken(user.optString(UserExt.USER_B3_KEY)); //unionID 进行hash
+                if (token==null || "".equals(token)){
+                }
+                redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
+                return token;
+            }catch (Exception e){
+                logger.error(e.getMessage());
+                return null;
+            }
+
+
+
+
 
             final String userPassword = user.optString(User.USER_PASSWORD);
             if (userPassword.equals(MD5.hash(password))) {

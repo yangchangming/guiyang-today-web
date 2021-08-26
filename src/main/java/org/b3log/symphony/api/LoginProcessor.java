@@ -26,16 +26,13 @@ import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
-import org.b3log.latke.util.MD5;
 import org.b3log.latke.util.Requests;
 import org.b3log.symphony.model.UserExt;
-import org.b3log.symphony.processor.advice.TokenCheck;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.UserMgmtService;
 import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.util.AuthUtil;
-import org.b3log.symphony.util.Sessions;
 import org.json.JSONException;
 import org.json.JSONObject;
 

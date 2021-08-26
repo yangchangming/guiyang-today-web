@@ -1,5 +1,6 @@
 package org.b3log.symphony.processor.advice;
 
+import com.sun.tools.javac.comp.Check;
 import org.b3log.latke.Keys;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
@@ -18,6 +19,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -31,20 +33,11 @@ import java.util.Map;
 @Singleton
 public class TokenCheck extends BeforeRequestProcessAdvice {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOGGER = Logger.getLogger(TokenCheck.class.getName());
 
-    /**
-     * User query service.
-     */
     @Inject
     private UserQueryService userQueryService;
 
-    /**
-     * User management service.
-     */
     @Inject
     private UserMgmtService userMgmtService;
 
@@ -58,22 +51,45 @@ public class TokenCheck extends BeforeRequestProcessAdvice {
 
         //todo check token for current user
 
+        String token = request.getHeader("token");
+        String userId = request.getHeader("sign");
+
         try {
-            JSONObject currentUser = userQueryService.getCurrentUser(request);
-            if (null == currentUser && !userMgmtService.tryLogInWithCookie(request, context.getResponse())) {
-                throw new RequestProcessAdviceException(exception);
+            if (token==null || userId==null || "".equals(token) || "".equals(userId)){
+                String content = new ParamMissingResponse(null).getResponseBodyAsString();
+
+                OutputStream outputStream = response.getOutputStream();
+                response.setHeader("Content-Type", "application/json;charset=UTF-8");
+
+                outputStream.write(content.getBytes("UTF-8"));
+                outputStream.flush();
+                return false;
             }
 
-            currentUser = userQueryService.getCurrentUser(request);
-            final int point = currentUser.optInt(UserExt.USER_POINT);
-            final int appRole = currentUser.optInt(UserExt.USER_APP_ROLE);
-            if (UserExt.USER_APP_ROLE_C_HACKER == appRole) {
-                currentUser.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(point));
-            } else {
-                currentUser.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(point));
+            if (userId!=null && !"".equals(userId)){
+                User user = new User();
+                user.setId(userId);
+//                return SessionUtil.checkIn(user, token) && AuthUtil.checkIn(token, userId);
+
+                boolean result = SessionUtil.checkIn(user, token);
+                if (!result){
+                    String content = new InvalidTokenResponse(null).getResponseBodyAsString();
+                    OutputStream outputStream = response.getOutputStream();
+                    response.setHeader("Content-Type", "application/json;charset=UTF-8");
+                    outputStream.write(content.getBytes("UTF-8"));
+                    outputStream.flush();
+                }
+                return result;
             }
+
+
+
+
+
+
 
             request.setAttribute(User.USER, currentUser);
+
         } catch (final ServiceException e) {
             LOGGER.log(Level.ERROR, "Login check failed");
             throw new RequestProcessAdviceException(exception);

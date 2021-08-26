@@ -31,6 +31,8 @@ public class AuthUtil {
     public static Logger logger = Logger.getLogger(AuthUtil.class);
     public static AES aes = AES.getInstance();
 
+    private static String SESSION_PREFIX = "app:session:";
+
     /**
      * build token, and return to client after client login system
      * todo why build token for diff two times?
@@ -63,6 +65,22 @@ public class AuthUtil {
         }
         return token.toLowerCase().equals(buildToken(userId).toLowerCase());
     }
+
+    /**
+     * 检查缓存中存储的token是否一致
+     *
+     * @param userId
+     * @param token
+     * @return
+     */
+    public static boolean checkToken(String userId, String token) {
+        if (userId==null || "".equals(userId)){
+            return false;
+        }
+        return token.equals(redisService.getCache(SESSION_PREFIX + userId));
+    }
+
+
 
     /**
      * fetch userId by reverse token

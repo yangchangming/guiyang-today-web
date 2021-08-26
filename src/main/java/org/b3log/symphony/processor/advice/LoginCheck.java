@@ -84,11 +84,9 @@ public class LoginCheck extends BeforeRequestProcessAdvice {
             } else {
                 currentUser.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(point));
             }
-
             request.setAttribute(User.USER, currentUser);
         } catch (final ServiceException e) {
             LOGGER.log(Level.ERROR, "Login check failed");
-
             throw new RequestProcessAdviceException(exception);
         }
     }

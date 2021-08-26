@@ -23,9 +23,9 @@ public class AES {
 	private Cipher c;
 	// 该字节数组负责保存加密的结果
 	private byte[] cipherByte;
+	private static String CI_KEY = "iuweirnmv";
 	// 对称密钥
-	private String passwd = Constants.ClientInterface.CI_KEY;
-
+	private String passwd = CI_KEY;
 	private static AES _instance = new AES();
 
 	public static AES getInstance() {

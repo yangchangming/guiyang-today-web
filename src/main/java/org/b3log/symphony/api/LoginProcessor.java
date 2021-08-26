@@ -118,7 +118,10 @@ public class LoginProcessor {
                 result.put("error_description", "Token build failure.");
                 return;
             }
-//              redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
+
+
+            redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
+
 
             final String ip = Requests.getRemoteAddr(request);
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);

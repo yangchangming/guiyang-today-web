@@ -8,7 +8,7 @@ import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.advice.BeforeRequestProcessAdvice;
 import org.b3log.latke.servlet.advice.RequestProcessAdviceException;
-import org.b3log.symphony.service.UserMgmtService;
+import org.b3log.symphony.service.RedisService;
 import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.util.AuthUtil;
 import org.json.JSONObject;
@@ -18,7 +18,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ public class TokenCheck extends BeforeRequestProcessAdvice {
     private UserQueryService userQueryService;
 
     @Inject
-    private UserMgmtService userMgmtService;
+    private RedisService redisService;
 
     @Override
     public void doAdvice(final HTTPRequestContext context, final Map<String, Object> args) throws RequestProcessAdviceException {
@@ -53,7 +52,10 @@ public class TokenCheck extends BeforeRequestProcessAdvice {
                 throw new RequestProcessAdviceException(exception);
             }
             if (userId!=null && !"".equals(userId)){
-                boolean result = AuthUtil.checkToken(userId, token);
+
+//                boolean result = AuthUtil.checkToken(userId, token);
+                boolean result = token.equals(redisService.getCache(AuthUtil.SESSION_PREFIX + userId));
+
                 if (!result){
                     final JSONObject exceptionForbidden = new JSONObject();
                     exception.put(Keys.MSG, HttpServletResponse.SC_FORBIDDEN + ", " + request.getRequestURI());

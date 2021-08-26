@@ -30,6 +30,7 @@ import org.b3log.latke.util.Requests;
 import org.b3log.symphony.model.UserExt;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
+import org.b3log.symphony.service.RedisService;
 import org.b3log.symphony.service.UserMgmtService;
 import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.util.AuthUtil;
@@ -61,6 +62,9 @@ public class LoginProcessor {
     @Inject
     private UserMgmtService userMgmtService;
 
+    @Inject
+    private RedisService redisService;
+
     /**
      * Login by wechat, register new user if user not exist.
      *
@@ -85,8 +89,10 @@ public class LoginProcessor {
 
         result = Requests.parseRequestJSONObject(request, response);
         String unionId = result.getString("unionId");
+        String oid = null;
         try {
             JSONObject user = userQueryService.getUserByUnionId(unionId);
+
             //todo 看看微信返回什么数据
             if (user==null) {
                 user = new JSONObject();
@@ -100,7 +106,7 @@ public class LoginProcessor {
                 user.put(UserExt.USER_CITY, result.getString("city"));
                 user.put(UserExt.USER_COUNTRY, result.getString("country"));
                 user.put(UserExt.USER_AVATAR_URL, result.getString("headImgUrl"));
-                userMgmtService.addUser(user);
+                oid = userMgmtService.addUser(user);
             }
 
 //            if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)
@@ -110,7 +116,9 @@ public class LoginProcessor {
 //                ret.put("error_description", errorDescription);
 //                return;
 //            }
-
+            if (oid==null){
+                oid = user.getString("oid");
+            }
             String token = null;
             token = AuthUtil.buildToken(unionId); //unionID 进行hash
             if (token==null || "".equals(token)){
@@ -118,11 +126,8 @@ public class LoginProcessor {
                 result.put("error_description", "Token build failure.");
                 return;
             }
-
-
-            redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
-
-
+            //放入缓存
+            redisService.setCache(AuthUtil.SESSION_PREFIX + oid, token, AuthUtil.SESSION_TIMEOUT_SECOND);
             final String ip = Requests.getRemoteAddr(request);
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
             result.put("access_token", token);

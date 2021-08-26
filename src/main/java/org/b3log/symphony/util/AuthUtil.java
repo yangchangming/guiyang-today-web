@@ -15,8 +15,7 @@
  */
 package org.b3log.symphony.util;
 
-
-import freemarker.template.utility.DateUtil;
+import org.b3log.latke.logging.Logger;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -29,6 +28,7 @@ import java.util.Map;
  */
 public class AuthUtil {
 
+    public static Logger logger = Logger.getLogger(AuthUtil.class);
     public static AES aes = AES.getInstance();
 
     /**
@@ -43,8 +43,8 @@ public class AuthUtil {
             return "";
         }
         Calendar calendar=Calendar.getInstance();
-        calendar.add(Calendar.HOUR_OF_DAY, Constants.ClientInterface.CI_TIME);
-        String temp = userId + ";" + DateUtil.sampleTimeFormat(calendar.getTime());
+        calendar.add(Calendar.HOUR_OF_DAY, (24 * 7));
+        String temp = userId + ";" + Dates.sampleTimeFormat(calendar.getTime());
         byte[] data = aes.Encrytor(temp);
         String token= Base64.encodeBase64(data);
         return token;
@@ -79,14 +79,16 @@ public class AuthUtil {
         try {
             temp = aes.Decryptor(data);
         } catch (Exception e) {
-            throw new AuthException();
+            logger.error(e.getMessage());
+            return null;
         }
         String _temp = new String(temp);
         String userId;
         if (_temp.indexOf(";")>0){
             userId = _temp.substring(0,_temp.indexOf(";") );
         }else{
-            throw new AuthException();
+            throw new RuntimeException();
+
         }
         return userId;
     }

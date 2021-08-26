@@ -511,14 +511,12 @@ public class LoginProcessor {
     @Before(adviceClass = StopwatchStartAdvice.class)
     public void loginByWX(final HTTPRequestContext context, final HttpServletRequest request,
                           final HttpServletResponse response) throws ServiceException{
-        final Transaction transaction = userRepository.beginTransaction();
-
         String code = request.getParameter("code");
         WeChats.AccessTokenModel accessTokenModel = WeChats.getAccessToken(code);
         WeChats.WeChatUserInfoModel weChatUserInfoModel = WeChats.getUserInfo(accessTokenModel.getOpenId(), accessTokenModel.getAccessToken());
 
         try {
-            JSONObject user = userRepository.getByUnionId(weChatUserInfoModel.getUnionId());
+            JSONObject user = userQueryService.getUserByUnionId(weChatUserInfoModel.getUnionId());
             if (user==null){
                 user = new JSONObject();
                 user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
@@ -533,7 +531,6 @@ public class LoginProcessor {
                 user.put(UserExt.USER_AVATAR_URL, weChatUserInfoModel.getHeadImgUrl());
                 userMgmtService.addUser(user);
             }
-            transaction.commit();
 
             //login
             Sessions.login(request, response, user);
@@ -541,13 +538,8 @@ public class LoginProcessor {
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
             context.renderMsg("").renderTrueResult();
             return;
-        }catch (final RepositoryException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            LOGGER.log(Level.ERROR, "Login by wechat failed", e);
-            throw new ServiceException(e);
         }catch (final ServiceException e){
+            LOGGER.log(Level.ERROR, "Login by wechat failed", e);
             context.renderMsg(langPropsService.get("loginFailLabel"));
         }
     }

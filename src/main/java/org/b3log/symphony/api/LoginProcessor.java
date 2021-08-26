@@ -16,6 +16,7 @@
 package org.b3log.symphony.api;
 
 import org.b3log.latke.Keys;
+import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
@@ -44,14 +45,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Logger;
 
 /**
- * Oauth processor.
- *
- * <ul>
- * <li>(/oauth/token), POST</li>
- * </ul>
+ * Login by app processor.
  *
  * @author <a href="http://wdx.me">DX</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
@@ -60,21 +56,16 @@ import java.util.logging.Logger;
  */
 @RequestProcessor
 public class LoginProcessor {
+    private static Logger logger = Logger.getLogger(LoginProcessor.class);
 
-    /**
-     * User query service.
-     */
     @Inject
     private UserQueryService userQueryService;
 
-    /**
-     * User management service.
-     */
     @Inject
     private UserMgmtService userMgmtService;
 
     /**
-     * Login by wechat
+     * Login by wechat, register new user if user not exist.
      *
      * @param context the specified context
      * @param request the specified request
@@ -86,71 +77,62 @@ public class LoginProcessor {
     @RequestProcessing(value = "/api/v1/login/wechat", method = HTTPRequestMethod.POST)
     @Before(adviceClass = StopwatchStartAdvice.class)
     @After(adviceClass = StopwatchEndAdvice.class)
-    public void mobileLogin(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void login4Wechat(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, JSONException {
         final String error = "invalid grant";
         final String errorDescription = "The provided authorization grant is invalid, expired, revoked, does not match";
         final JSONRenderer renderer = new JSONRenderer();
         context.setRenderer(renderer);
+        JSONObject result = new JSONObject();
+        renderer.setJSONObject(result);
 
-        final JSONObject ret = new JSONObject();
-        renderer.setJSONObject(ret);
-
-        final String username = request.getParameter("username");
-        final String password = request.getParameter("password");
-
+        result = Requests.parseRequestJSONObject(request, response);
+        String unionId = result.getString("unionId");
         try {
-            JSONObject user = userQueryService.getUserByName(username);
-            if (null == user) {
-                user = userQueryService.getUserByEmail(username);
+            JSONObject user = userQueryService.getUserByUnionId(unionId);
+            //todo 看看微信返回什么数据
+            if (user==null) {
+                user = new JSONObject();
+                user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+                user.put(UserExt.USER_B3_KEY, unionId);
+                user.put(UserExt.USER_QQ, result.getString("sex"));
+                user.put(User.USER_PASSWORD, "");
+                user.put(UserExt.USER_NICKNAME, result.getString("nickName"));
+                user.put(User.USER_NAME, result.getString("nickName"));
+                user.put(UserExt.USER_PROVINCE, result.getString("province"));
+                user.put(UserExt.USER_CITY, result.getString("city"));
+                user.put(UserExt.USER_COUNTRY, result.getString("country"));
+                user.put(UserExt.USER_AVATAR_URL, result.getString("headImgUrl"));
+                userMgmtService.addUser(user);
             }
 
-            if (null == user || null == password) {
-                ret.put("error", error);
-                ret.put("error_description", errorDescription);
-                return;
-            }
-
-            if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)
-                    || UserExt.USER_STATUS_C_INVALID_LOGIN == user.optInt(UserExt.USER_STATUS)) {
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
-                ret.put("error", error);
-                ret.put("error_description", errorDescription);
-                return;
-            }
-
-            //Get unionID and checkin ...
+//            if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)
+//                    || UserExt.USER_STATUS_C_INVALID_LOGIN == user.optInt(UserExt.USER_STATUS)) {
+//                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
+//                ret.put("error", error);
+//                ret.put("error_description", errorDescription);
+//                return;
+//            }
 
             String token = null;
-
-            try {
-                token = AuthUtil.buildToken(user.optString(UserExt.USER_B3_KEY)); //unionID 进行hash
-                if (token==null || "".equals(token)){
-                }
-                redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
-                return token;
-            }catch (Exception e){
-                logger.error(e.getMessage());
-                return null;
+            token = AuthUtil.buildToken(unionId); //unionID 进行hash
+            if (token==null || "".equals(token)){
+                result.put("error", error);
+                result.put("error_description", "Token build failure.");
+                return;
             }
+//              redisService.setCache(APIConstants.SESSION_PREFIX+user.getId(), token, APIConstants.SESSION_TIMEOUT_SECOND);
 
-
-
-
-
-            final String userPassword = user.optString(User.USER_PASSWORD);
-            if (userPassword.equals(MD5.hash(password))) {
-                final String ip = Requests.getRemoteAddr(request);
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
-                ret.put("access_token", "{\"userPassword\":\"" + user.optString(User.USER_PASSWORD) + "\",\"userEmail\":\""
-                        + user.optString(User.USER_EMAIL) + "\"}");
-                ret.put("token_type", "bearer");
-                ret.put("scope", "user");
-                ret.put("created_at", new Date().getTime());
-            }
+            final String ip = Requests.getRemoteAddr(request);
+            userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
+            result.put("access_token", token);
+            result.put("token_type", "app");
+            result.put("scope", "user");
+            result.put("created_at", new Date().getTime());
+            return;
         } catch (final ServiceException e) {
-            ret.put("error", error);
-            ret.put("error_description", errorDescription);
+            result.put("error", error);
+            result.put("error_description", errorDescription);
         }
     }
 }

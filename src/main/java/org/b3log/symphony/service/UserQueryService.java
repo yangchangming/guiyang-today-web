@@ -416,6 +416,20 @@ public class UserQueryService {
         }
     }
 
+    public JSONObject getUserByUnionId(final String unionId) throws ServiceException {
+        try {
+            final JSONObject user = userRepository.getByUnionId(unionId);
+            if (user==null){
+                return null;
+            }
+            return user;
+        } catch (RepositoryException e) {
+            LOGGER.log(Level.ERROR, "Gets user by unionId[" + unionId + "] failed", e);
+            throw new ServiceException(e);
+        }
+    }
+
+
     /**
      * Gets users by the specified request json object.
      *

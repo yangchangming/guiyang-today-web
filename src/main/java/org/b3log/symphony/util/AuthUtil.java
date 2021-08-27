@@ -30,7 +30,6 @@ public class AuthUtil {
 
     public static Logger logger = Logger.getLogger(AuthUtil.class);
     public static AES aes = AES.getInstance();
-    public static String SESSION_PREFIX = "app:session:";
     public static int SESSION_TIMEOUT_SECOND = 30*24*3600; //1个月
 
     /**

@@ -27,10 +27,10 @@ import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
 import org.b3log.latke.util.Requests;
+import org.b3log.symphony.cache.TokenCache;
 import org.b3log.symphony.model.UserExt;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
-import org.b3log.symphony.service.RedisService;
 import org.b3log.symphony.service.UserMgmtService;
 import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.util.AuthUtil;
@@ -63,7 +63,7 @@ public class LoginProcessor {
     private UserMgmtService userMgmtService;
 
     @Inject
-    private RedisService redisService;
+    private TokenCache tokenCache;
 
     /**
      * Login by wechat, register new user if user not exist.
@@ -126,8 +126,9 @@ public class LoginProcessor {
                 result.put("error_description", "Token build failure.");
                 return;
             }
-            //放入缓存
-            redisService.setCache(AuthUtil.SESSION_PREFIX + oid, token, AuthUtil.SESSION_TIMEOUT_SECOND);
+            //放入本地缓存
+            tokenCache.put(TokenCache.SESSION_PREFIX + oid, token);
+
             final String ip = Requests.getRemoteAddr(request);
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
             result.put("access_token", token);

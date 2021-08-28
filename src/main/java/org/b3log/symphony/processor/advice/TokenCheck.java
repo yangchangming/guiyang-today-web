@@ -10,8 +10,6 @@ import org.b3log.latke.servlet.advice.BeforeRequestProcessAdvice;
 import org.b3log.latke.servlet.advice.RequestProcessAdviceException;
 import org.b3log.symphony.cache.TokenCache;
 import org.b3log.symphony.service.UserQueryService;
-import org.b3log.symphony.util.AuthUtil;
-import org.ietf.jgss.Oid;
 import org.json.JSONObject;
 
 import javax.inject.Inject;

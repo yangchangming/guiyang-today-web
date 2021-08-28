@@ -17,6 +17,7 @@ package org.b3log.symphony.api;
 
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.After;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
@@ -24,6 +25,9 @@ import org.b3log.latke.servlet.renderer.JSONRenderer;
 import org.b3log.latke.util.Strings;
 import org.b3log.symphony.model.Article;
 import org.b3log.symphony.processor.advice.LoginCheck;
+import org.b3log.symphony.processor.advice.TokenCheck;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.ArticleQueryService;
 import org.b3log.symphony.service.TagQueryService;
 import org.json.JSONObject;
@@ -69,6 +73,8 @@ public class ArticleProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/apis/articles", method = HTTPRequestMethod.GET)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void getTagsArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final JSONRenderer renderer = new JSONRenderer().setJSONP(true);
@@ -112,7 +118,8 @@ public class ArticleProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/api/v1/stories/", method = HTTPRequestMethod.GET)
-    @Before(adviceClass = LoginCheck.class)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void getArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         int currentPage = 1;
@@ -137,6 +144,8 @@ public class ArticleProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/api/v1/stories/recent", method = HTTPRequestMethod.GET)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void getRecentArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         int currentPage = 1;
@@ -161,6 +170,8 @@ public class ArticleProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/api/v1/stories/search", method = HTTPRequestMethod.GET)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void searchArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         getRecentArticles(context, request, response);

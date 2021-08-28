@@ -32,6 +32,8 @@ import org.b3log.latke.model.User;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.After;
+import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
@@ -39,6 +41,9 @@ import org.b3log.latke.util.Requests;
 import org.b3log.symphony.model.Article;
 import org.b3log.symphony.model.Comment;
 import org.b3log.symphony.model.UserExt;
+import org.b3log.symphony.processor.advice.TokenCheck;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.ArticleQueryService;
 import org.b3log.symphony.service.CommentMgmtService;
 import org.b3log.symphony.service.CommentQueryService;
@@ -115,9 +120,10 @@ public class CommentProcessor {
      * @throws IOException io ex
      */
     @RequestProcessing(value = "/api/v1/stories/{id}/reply", method = HTTPRequestMethod.POST)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void comment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
             final String id) throws ServletException, JSONException, IOException {
-
         final String auth = request.getHeader("Authorization");
         if (auth == null) {//TODO validate
             return;

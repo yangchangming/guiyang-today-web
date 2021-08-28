@@ -23,9 +23,14 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.After;
+import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.symphony.model.UserExt;
+import org.b3log.symphony.processor.advice.TokenCheck;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.ActivityMgmtService;
 import org.b3log.symphony.service.UserQueryService;
 import org.json.JSONException;
@@ -69,6 +74,8 @@ public class ActivityProcessor {
      * @throws ServiceException service exception
      */
     @RequestProcessing(value = "/api/v1/activities/checkin", method = HTTPRequestMethod.POST)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void checkin(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
             throws JSONException, IOException, ServiceException {
         final String auth = request.getHeader("Authorization");

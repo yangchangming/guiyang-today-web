@@ -23,10 +23,15 @@ import org.b3log.latke.logging.Logger;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.HTTPRequestContext;
 import org.b3log.latke.servlet.HTTPRequestMethod;
+import org.b3log.latke.servlet.annotation.After;
+import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.latke.servlet.renderer.JSONRenderer;
 import org.b3log.symphony.model.Vote;
+import org.b3log.symphony.processor.advice.TokenCheck;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
+import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.UserQueryService;
 import org.b3log.symphony.service.VoteMgmtService;
 import org.b3log.symphony.service.VoteQueryService;
@@ -97,6 +102,8 @@ public class VoteProcessor {
      * @throws Exception exception
      */
     @RequestProcessing(value = "/api/v1/stories/{id}/upvote", method = HTTPRequestMethod.POST)
+    @Before(adviceClass = {StopwatchStartAdvice.class, TokenCheck.class})
+    @After(adviceClass = StopwatchEndAdvice.class)
     public void voteUpArticle(final HTTPRequestContext context, final HttpServletRequest request,
             final HttpServletResponse response, final String id) throws Exception {
         final String auth = request.getHeader("Authorization");

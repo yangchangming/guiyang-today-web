@@ -519,10 +519,8 @@ public class ArticleProcessor {
         final JSONObject article = articleQueryService.getArticleById(articleId);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-
             return;
         }
-
         final HttpSession session = request.getSession(false);
         if (null != session) {
             session.setAttribute(Article.ARTICLE_T_ID, articleId);
@@ -794,7 +792,6 @@ public class ArticleProcessor {
         } catch (final ServiceException e) {
             final String msg = e.getMessage();
             LOGGER.log(Level.ERROR, "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
-
             context.renderMsg(msg);
         }
     }

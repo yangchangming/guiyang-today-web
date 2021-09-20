@@ -45,7 +45,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Login by app processor.
+ * Login by wechat processor.
  *
  * @author <a href="http://wdx.me">DX</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
@@ -66,7 +66,7 @@ public class LoginProcessor {
     private TokenCache tokenCache;
 
     /**
-     * Login by wechat, register new user if user not exist.
+     * Login by wechat just for app, register new user if user not exist.
      *
      * @param context the specified context
      * @param request the specified request

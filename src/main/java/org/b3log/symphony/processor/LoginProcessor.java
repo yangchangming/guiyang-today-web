@@ -545,7 +545,7 @@ public class LoginProcessor {
     }
 
     /**
-     * Logins user.
+     * Logins user. PC端用户名+密码登录
      *
      * @param context the specified context
      * @param request the specified request
@@ -566,46 +566,33 @@ public class LoginProcessor {
             if (null == user) {
                 user = userQueryService.getUserByEmail(nameOrEmail);
             }
-
             if (null == user) {
                 context.renderMsg(langPropsService.get("notFoundUserLabel"));
-
                 return;
             }
-
             if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
                 context.renderMsg(langPropsService.get("userBlockLabel"));
-
                 return;
             }
-
             if (UserExt.USER_STATUS_C_NOT_VERIFIED == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
                 context.renderMsg(langPropsService.get("notVerifiedLabel"));
-
                 return;
             }
-
             if (UserExt.USER_STATUS_C_INVALID_LOGIN == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
                 context.renderMsg(langPropsService.get("invalidLoginLabel"));
-
                 return;
             }
-
             final String userPassword = user.optString(User.USER_PASSWORD);
             if (userPassword.equals(requestJSONObject.optString(User.USER_PASSWORD))) {
                 Sessions.login(request, response, user);
-
                 final String ip = Requests.getRemoteAddr(request);
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
-
                 context.renderMsg("").renderTrueResult();
-
                 return;
             }
-
             context.renderMsg(langPropsService.get("wrongPwdLabel"));
         } catch (final ServiceException e) {
             context.renderMsg(langPropsService.get("loginFailLabel"));

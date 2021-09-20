@@ -1,15 +1,61 @@
-# For a quick start check out our HTTP Requests collection (Tools|HTTP Client|Open HTTP Requests Collection).
-#
-# Following HTTP Request Live Templates are available:
-# * 'gtrp' and 'gtr' create a GET request with or without query parameters;
-# * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
-# * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
-GET http://gzit.info/apis/news
-
-###
+### PC端/用户名+密码登录
 
 POST http://127.0.0.1:8084/login
+Content-Type: application/json
+
+{
+  "nameOrEmail": "yangchangming",
+  "userPassword": "e10adc3949ba59abbe56e057f20f883e"
+}
+
+### app微信登录
+
+POST http://127.0.0.1:8084/api/v1/login/wechat
+
+### 最近的25条文章，没有文章内容
+
+GET http://127.0.0.1:8084/api/v1/stories/recent
+
+### 获取文章，包括文章内容
+
+GET http://127.0.0.1:8084/api/v1/stories
+
+### 获取文章，根据tag
+
+GET http://127.0.0.1:8084/api/v1/articles/大数据
+
+### 获取文章详情
+
+GET http://127.0.0.1:8084/api/v1/article/1471425589330
+
+### 增加文章
+
+POST http://127.0.0.1:8084/api/v1/article
+Content-Type: application/json
+
+{
+  "articleTitle": "测试文章标题1",
+  "articleTags": "测试",
+  "articleContent": "<div style='font-size: 22px; font-weight: 600;'>这是一篇测试的文章</div>",
+  "articleType": 0,
+  "articleRewardContent": "",
+  "articleRewardPoint": 0,
+  "articleAnonymous": false,
+  "user": {
+    "userEmail": "neocode@126.com",
+    "articleAuthorId": "1470741193024"
+  }
+}
+
+
+
+
+
+
+### 验证token有效性
+
+POST http://127.0.0.1:8084/oauth/token
 Content-Type: application/json
 
 {
@@ -27,21 +73,5 @@ GET http://127.0.0.1:8084/apis/articles
 
 ###
 
-POST http://127.0.0.1:8084/oauth/token
-Content-Type: application/json
-
-{
-  "nameOrEmail": "yangchangming",
-  "userPassword": "e10adc3949ba59abbe56e057f20f883e"
-}
-
-###
-
 GET http://127.0.0.1:8084/api/v1/stories/
 Accept: application/json
-
-###
-
-GET http://127.0.0.1:8084/
-
-###

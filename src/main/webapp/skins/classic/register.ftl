@@ -83,9 +83,9 @@
             var obj = new WxLogin({
                 self_redirect:false,
                 id:"qr_code_id",
-                appid: "xxxxx",
+                appid: "wxaf4bef7a754a2e63",
                 scope: "snsapi_login",
-                redirect_uri: "http://localhost:8084",
+                redirect_uri: "http://www.gzit.info",
                 state: "",
                 style: "",
                 href: ""

@@ -85,7 +85,7 @@
                 id:"qr_code_id",
                 appid: "wxaf4bef7a754a2e63",
                 scope: "snsapi_login",
-                redirect_uri: "http://www.gzit.info",
+                redirect_uri: "http://www.gzit.info/callback4WX",
                 state: "",
                 style: "",
                 href: ""

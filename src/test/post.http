@@ -50,7 +50,7 @@ Content-Type: application/json
 
 ### pc端微信扫码登录
 
-GET http://127.0.0.1:8084/callback4WX?code=051cvHll2QPzP74Xrvnl2d49iX3cvHlw&state=
+GET http://127.0.0.1:8084/callback4WX?code=011EBKFa1TRHPB06s6Ia1OSX151EBKFw&state=
 
 
 

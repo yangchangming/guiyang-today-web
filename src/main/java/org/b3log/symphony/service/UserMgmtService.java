@@ -436,10 +436,8 @@ public class UserMgmtService {
                 if (transaction.isActive()) {
                     transaction.rollback();
                 }
-
                 throw new ServiceException(langPropsService.get("duplicatedUserNameLabel") + " [" + userName + "]");
             }
-
             boolean toUpdate = false;
             String ret = null;
             String avatarURL = null;
@@ -519,7 +517,7 @@ public class UserMgmtService {
             user.put(UserExt.USER_NOTIFY_STATUS, UserExt.USER_XXX_STATUS_C_ENABLED);
             user.put(UserExt.USER_LIST_PAGE_SIZE, Symphonys.getInt("indexArticlesCnt"));
 
-            if (toUpdate) {
+            if (toUpdate) { //更新头像字段（从七牛存储地址）
                 user.put(UserExt.USER_NO, userNo);
                 if (Symphonys.getBoolean("qiniu.enabled")) {
                     user.put(UserExt.USER_AVATAR_URL, Symphonys.get("qiniu.domain") + "/avatar/" + ret + "?"

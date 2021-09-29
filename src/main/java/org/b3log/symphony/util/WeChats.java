@@ -15,12 +15,8 @@
  */
 package org.b3log.symphony.util;
 
-import com.google.gson.JsonObject;
-import com.sun.beans.WeakCache;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.security.auth.login.AccountException;
 
 /**
  * <p> WeChat utilities </p>
@@ -35,7 +31,7 @@ public final class WeChats {
 
     final private static String WECHAT_CODE_REQUEST_URL = "https://open.weixin.qq.com/connect/qrconnect?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect";
     final private static String WECHAT_ACCESS_TOKEN_REQUEST_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+ appId + "&secret="+ appSecret +"&grant_type=authorization_code&code=";
-    final private static String WECHAT_USER_INFO_REQUEST_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID";
+    final private static String WECHAT_USER_INFO_REQUEST_URL = "https://api.weixin.qq.com/sns/userinfo?";
 
     /**
      * Constructor
@@ -80,15 +76,49 @@ public final class WeChats {
         return accessTokenModel;
     }
 
+    /**
+     * 获取微信用户个人信息
+     *
+     * {
+     * "openid":"OPENID",
+     * "nickname":"NICKNAME",
+     * "sex":1,
+     * "province":"PROVINCE",
+     * "city":"CITY",
+     * "country":"COUNTRY",
+     * "headimgurl": "https://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/0",
+     * "privilege":[
+     * "PRIVILEGE1",
+     * "PRIVILEGE2"
+     * ],
+     * "unionid": " o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * }
+     *
+     * @param openId
+     * @param accessToken
+     * @return
+     */
     public static WeChatUserInfoModel getUserInfo(String openId, String accessToken){
-
-
-
-
-
-
-
-
+        StringBuffer userInfoUrl = new StringBuffer(WECHAT_USER_INFO_REQUEST_URL);
+        userInfoUrl.append("access_token=").append(accessToken).append("&openid=").append(openId);
+        String content = HttpUtil.get(userInfoUrl.toString());
+        WeChats.WeChatUserInfoModel userInfoModel = new WeChats.WeChatUserInfoModel();
+        JSONObject result = null;
+        try {
+            result = new JSONObject(content);
+            userInfoModel.setCity(result.getString("city"));
+            userInfoModel.setCountry(result.getString("country"));
+            userInfoModel.setOpenId(result.getString("openid"));
+//            userInfoModel.setPrivileges(result.getJSONArray("privilege").);
+            userInfoModel.setHeadImgUrl(result.getString("headimgurl"));
+            userInfoModel.setNickName(result.getString("nickname"));
+            userInfoModel.setProvince(result.getString("province"));
+            userInfoModel.setSex(result.getInt("sex"));
+            userInfoModel.setUnionId(result.getString("unionid"));
+            return userInfoModel;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -153,7 +183,7 @@ public final class WeChats {
         private String openId;
         private String unionId;
         private String nickName;
-        private String sex;
+        private int sex;
         private String province;
         private String city;
         private String country;
@@ -184,11 +214,11 @@ public final class WeChats {
             this.nickName = nickName;
         }
 
-        public String getSex() {
+        public int getSex() {
             return sex;
         }
 
-        public void setSex(String sex) {
+        public void setSex(int sex) {
             this.sex = sex;
         }
 

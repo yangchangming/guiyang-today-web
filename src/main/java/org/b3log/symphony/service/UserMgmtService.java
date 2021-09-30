@@ -68,10 +68,7 @@ import org.b3log.symphony.repository.OptionRepository;
 import org.b3log.symphony.repository.TagRepository;
 import org.b3log.symphony.repository.UserRepository;
 import org.b3log.symphony.repository.UserTagRepository;
-import org.b3log.symphony.util.Crypts;
-import org.b3log.symphony.util.Geos;
-import org.b3log.symphony.util.Sessions;
-import org.b3log.symphony.util.Symphonys;
+import org.b3log.symphony.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -554,49 +551,48 @@ public class UserMgmtService {
             } else {
                 ret = Ids.genTimeMillisId();
                 user.put(Keys.OBJECT_ID, ret);
-
+                byte[] bytes;
                 try {
-                    final BufferedImage img = avatarQueryService.createAvatar(MD5.hash(ret), 512);
-                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ImageIO.write(img, "jpg", baos);
-                    baos.flush();
-                    final byte[] bytes = baos.toByteArray();
-                    baos.close();
+                    //微信登录返回网络头像
+                    avatarURL = requestJSONObject.optString(UserExt.USER_AVATAR_URL);
+                    if (avatarURL!=null && !"".equals(avatarURL)){
+                        bytes = QiniuUtil.urlToByteArr(avatarURL);
+                    }else { //内存动态生成头像
+                        final BufferedImage img = avatarQueryService.createAvatar(MD5.hash(ret), 512);
+                        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ImageIO.write(img, "jpg", baos);
+                        baos.flush();
+                        bytes = baos.toByteArray();
+                        baos.close();
+                    }
 
                     if (Symphonys.getBoolean("qiniu.enabled")) {
-                        final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
-                        final UploadManager uploadManager = new UploadManager();
-
-                        uploadManager.put(bytes, "avatar/" + ret, auth.uploadToken(Symphonys.get("qiniu.bucket")),
-                                null, "image/jpeg", false);
-                        user.put(UserExt.USER_AVATAR_URL, Symphonys.get("qiniu.domain") + "/avatar/" + ret + "?"
-                                + new Date().getTime());
-                    } else {
+                        String result = QiniuUtil.upload4AbsolutePathFile(bytes);
+                        JSONObject _result = new JSONObject(result);
+                        if (_result!=null && _result.has("key")){
+                            user.put(UserExt.USER_AVATAR_URL, "http://"+Symphonys.get("qiniu.domain") + "/" + _result.getString("key")
+                                    + "?" + new Date().getTime());
+                        }else {
+                            user.put(UserExt.USER_AVATAR_URL, AvatarQueryService.DEFAULT_AVATAR_URL);
+                        }
+                    } else { //图片上传到本地
                         final String fileName = UUID.randomUUID().toString().replaceAll("-", "") + ".jpg";
                         final OutputStream output = new FileOutputStream(Symphonys.get("upload.dir") + fileName);
                         IOUtils.write(bytes, output);
-
                         IOUtils.closeQuietly(output);
-
                         user.put(UserExt.USER_AVATAR_URL, Latkes.getServePath() + "/upload/" + fileName);
                     }
                 } catch (final Exception e) {
                     LOGGER.log(Level.ERROR, "Generates avatar error", e);
-
                     user.put(UserExt.USER_AVATAR_URL, AvatarQueryService.DEFAULT_AVATAR_URL);
                 }
-
                 final JSONObject memberCntOption = optionRepository.get(Option.ID_C_STATISTIC_MEMBER_COUNT);
                 final int memberCount = memberCntOption.optInt(Option.OPTION_VALUE) + 1; // Updates stat. (member count +1)
-
                 user.put(UserExt.USER_NO, memberCount);
-
                 userRepository.add(user);
-
                 memberCntOption.put(Option.OPTION_VALUE, String.valueOf(memberCount));
                 optionRepository.update(Option.ID_C_STATISTIC_MEMBER_COUNT, memberCntOption);
             }
-
             transaction.commit();
 
             if (UserExt.USER_STATUS_C_VALID == status) {

@@ -44,6 +44,7 @@ import org.b3log.symphony.processor.advice.LoginCheck;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchEndAdvice;
 import org.b3log.symphony.processor.advice.stopwatch.StopwatchStartAdvice;
 import org.b3log.symphony.service.OptionQueryService;
+import org.b3log.symphony.util.QiniuUtil;
 import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
@@ -139,11 +140,12 @@ public class FetchUploadProcessor {
         final String fileName = UUID.randomUUID().toString().replace("-", "") + "." + suffix;
 
         if (Symphonys.getBoolean("qiniu.enabled")) {
-            final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
-            final UploadManager uploadManager = new UploadManager();
+//            final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
+//            final UploadManager uploadManager = new UploadManager();
+//            uploadManager.put(data, "e/" + fileName, auth.uploadToken(Symphonys.get("qiniu.bucket")),
+//                    null, contentType, false);
 
-            uploadManager.put(data, "e/" + fileName, auth.uploadToken(Symphonys.get("qiniu.bucket")),
-                    null, contentType, false);
+            QiniuUtil.upload4AbsolutePathFile(data);
 
             context.renderJSONValue(Common.URL, Symphonys.get("qiniu.domain") + "/e/" + fileName);
             context.renderJSONValue("originalURL", originalURL);

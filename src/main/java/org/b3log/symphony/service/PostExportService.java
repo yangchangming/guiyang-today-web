@@ -42,6 +42,7 @@ import org.b3log.symphony.model.UserExt;
 import org.b3log.symphony.repository.ArticleRepository;
 import org.b3log.symphony.repository.CommentRepository;
 import org.b3log.symphony.repository.UserRepository;
+import org.b3log.symphony.util.QiniuUtil;
 import org.b3log.symphony.util.Symphonys;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -204,12 +205,11 @@ public class PostExportService {
             final byte[] zipData = IOUtils.toByteArray(inputStream);
 
             if (Symphonys.getBoolean("qiniu.enabled")) {
-                final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
-                final UploadManager uploadManager = new UploadManager();
-
-                uploadManager.put(zipData, fileKey, auth.uploadToken(Symphonys.get("qiniu.bucket")),
-                        null, "application/zip", false);
-
+//                final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
+//                final UploadManager uploadManager = new UploadManager();
+//                uploadManager.put(zipData, fileKey, auth.uploadToken(Symphonys.get("qiniu.bucket")),
+//                        null, "application/zip", false);
+                QiniuUtil.upload4AbsolutePathFile(zipData);
                 return Symphonys.get("qiniu.domain") + "/" + fileKey;
             } else {
                 final String filePath = Symphonys.get("upload.dir") + fileKey;

@@ -52,17 +52,13 @@ public class AvatarQueryService {
      */
     public void fillUserAvatarURL(final JSONObject user) {
         final String originalURL = user.optString(UserExt.USER_AVATAR_URL);
-
-        if (Symphonys.getBoolean("qiniu.enabled")) {
-            final String qiniuDomain = Symphonys.get("qiniu.domain");
-
-            if (!StringUtils.startsWith(originalURL, qiniuDomain)) {
-                user.put(UserExt.USER_AVATAR_URL, DEFAULT_AVATAR_URL);
-
-                return;
-            }
-        }
-
+//        if (Symphonys.getBoolean("qiniu.enabled")) {
+//            final String qiniuDomain = Symphonys.get("qiniu.domain");
+//            if (!StringUtils.startsWith(originalURL, qiniuDomain)) {
+//                user.put(UserExt.USER_AVATAR_URL, DEFAULT_AVATAR_URL);
+//                return;
+//            }
+//        }
         user.put(UserExt.USER_AVATAR_URL, StringUtils.substringBeforeLast(originalURL, "?"));
     }
 

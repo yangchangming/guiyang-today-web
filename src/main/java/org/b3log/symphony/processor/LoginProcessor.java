@@ -15,6 +15,7 @@
  */
 package org.b3log.symphony.processor;
 
+import com.sun.jdi.request.ExceptionRequest;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -510,7 +511,12 @@ public class LoginProcessor {
     @RequestProcessing(value = "/callback4WX", method = HTTPRequestMethod.GET)
     @Before(adviceClass = StopwatchStartAdvice.class)
     public void loginByWX(final HTTPRequestContext context, final HttpServletRequest request,
-                          final HttpServletResponse response) throws ServiceException{
+                          final HttpServletResponse response) throws Exception {
+        final AbstractFreeMarkerRenderer renderer = new SkinRenderer();
+        context.setRenderer(renderer);
+//        renderer.setTemplateName("/index.ftl");
+        final Map<String, Object> dataModel = renderer.getDataModel();
+
         String code = request.getParameter("code");
         WeChats.AccessTokenModel accessTokenModel = WeChats.getAccessToken(code);
         WeChats.WeChatUserInfoModel weChatUserInfoModel = WeChats.getUserInfo(accessTokenModel.getOpenId(), accessTokenModel.getAccessToken());
@@ -536,8 +542,11 @@ public class LoginProcessor {
             Sessions.login(request, response, user);
             final String ip = Requests.getRemoteAddr(request);
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
-            context.renderMsg("").renderTrueResult();
-            return;
+
+            filler.fillHeaderAndFooter(request, response, dataModel);
+
+            context.getResponse().sendRedirect("/");
+
         }catch (final ServiceException e){
             LOGGER.log(Level.ERROR, "Login by wechat failed", e);
             context.renderMsg(langPropsService.get("loginFailLabel"));

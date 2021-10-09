@@ -542,10 +542,9 @@ public class LoginProcessor {
             Sessions.login(request, response, user);
             final String ip = Requests.getRemoteAddr(request);
             userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
-
             filler.fillHeaderAndFooter(request, response, dataModel);
 
-            context.getResponse().sendRedirect("/");
+            context.getRequest().getRequestDispatcher("/").forward(request, response);
 
         }catch (final ServiceException e){
             LOGGER.log(Level.ERROR, "Login by wechat failed", e);

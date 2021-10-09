@@ -14,7 +14,6 @@
             </form>
             </#if>
         </div>
-
         <div class="fn-clear user-nav">
             <#if isLoggedIn>
                 <#if "adminRole" == userRole>
@@ -28,36 +27,40 @@
                    class="tooltipped tooltipped-s responsive-show"><span class="icon-addfile"></span></a>
                 <a id="aNotifications" class="tooltipped tooltipped-s <#if unreadNotificationCount == 0>no-msg<#else>msg</#if>" href="${servePath}/notifications" aria-label="${messageLabel}">${unreadNotificationCount}</a>
             <#else>
+                not log in
+                ${currentUser!'xxx'}
+
                 <a id="aRegister" href="javascript:Util.goRegister()" class="last ft-blue unlogin" title="${registerLabel}">${registerLabel}</a>
+
 <#--                <a href="javascript: Util.showLogin();" title="${loginLabel}" class="unlogin">${loginLabel}</a>-->
 
-                <div class="form fn-none">
-                <table cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td width="40">
-                            <label for="nameOrEmail">${accountLabel}</label>
-                        </td>
-                        <td>
-                            <input id="nameOrEmail" type="text" placeholder="${nameOrEmailLabel}" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="loginPassword">${passwordLabel}</label>
-                        </td>
-                        <td>
-                            <input type="password" id="loginPassword" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" align="right">
-                            <div id="loginTip" class="tip"></div><br/>
-                            <button class="info" onclick="window.location.href = '${servePath}/forget-pwd'">${forgetPwdLabel}</button>
-                            <button class="red" onclick="Util.login()">${loginLabel}</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+<#--                <div class="form fn-none">-->
+<#--                <table cellspacing="0" cellpadding="0">-->
+<#--                    <tr>-->
+<#--                        <td width="40">-->
+<#--                            <label for="nameOrEmail">${accountLabel}</label>-->
+<#--                        </td>-->
+<#--                        <td>-->
+<#--                            <input id="nameOrEmail" type="text" placeholder="${nameOrEmailLabel}" />-->
+<#--                        </td>-->
+<#--                    </tr>-->
+<#--                    <tr>-->
+<#--                        <td>-->
+<#--                            <label for="loginPassword">${passwordLabel}</label>-->
+<#--                        </td>-->
+<#--                        <td>-->
+<#--                            <input type="password" id="loginPassword" />-->
+<#--                        </td>-->
+<#--                    </tr>-->
+<#--                    <tr>-->
+<#--                        <td colspan="2" align="right">-->
+<#--                            <div id="loginTip" class="tip"></div><br/>-->
+<#--                            <button class="info" onclick="window.location.href = '${servePath}/forget-pwd'">${forgetPwdLabel}</button>-->
+<#--                            <button class="red" onclick="Util.login()">${loginLabel}</button>-->
+<#--                        </td>-->
+<#--                    </tr>-->
+<#--                </table>-->
+<#--            </div>-->
 
             </#if>
         </div>
